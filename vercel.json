@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/water_festival_lucky_spin_app.html"
+    }
+  ]
+}

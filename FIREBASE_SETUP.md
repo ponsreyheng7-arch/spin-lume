@@ -14,7 +14,10 @@ Firebase Authentication account and an explicit Firestore admin role.
    provider change has not propagated yet). Confirm the Console is showing the
    `spin-lume` project, enable **Anonymous**, save, wait briefly, and retry.
 3. In **Authentication → Settings → Authorized domains**, add the domain used
-   to host this app. The app must be served over HTTP(S), not opened as `file://`.
+   to host this app, including the Vercel domain such as
+   `spin-lume.vercel.app` (enter only the hostname, not `https://`). Add any
+   custom domain too. The app must be served over HTTP(S), not opened as
+   `file://`.
 4. Create the first Admin account under **Authentication → Users → Add user**.
    Keep its password private and copy its Firebase **UID**.
 5. In **Firestore Database → Data**, create a collection named `admin`. Add
@@ -35,19 +38,24 @@ Firebase Authentication account and an explicit Firestore admin role.
 
 ## Deploy Firestore rules and Hosting
 
-From this folder, install/use the Firebase CLI, sign in, and deploy:
+The app is a static HTML app. `vercel.json` rewrites the site root to
+`water_festival_lucky_spin_app.html`; Vercel serves the app and `assets/`
+without a build step. Import this folder's GitHub repository into Vercel and
+deploy with the default static/Other framework settings.
+
+Vercel deploys the website, but does **not** deploy Firestore rules. From this
+folder, install/use the Firebase CLI, sign in, and deploy the rules separately:
 
 ```powershell
 npx firebase-tools login
-npx firebase-tools deploy --only firestore:rules,hosting
+npx firebase-tools deploy --only firestore:rules --project spin-lume
 ```
 
-The included `.firebaserc` targets `spin-lume`. Hosting this folder serves
-`water_festival_lucky_spin_app.html` at the site root. The published rules allow
-authenticated users to read one spin document and create an immutable result;
-only an Admin can list or delete all results. The app uses a SHA-256 phone
-document ID and a Firestore transaction to avoid duplicate records when devices
-submit the same phone concurrently.
+The included `.firebaserc` targets `spin-lume`. Confirm deployment completed
+successfully. The published rules allow authenticated users to read one spin
+document and create an immutable result; only an Admin can list or delete all
+results. The app uses a SHA-256 phone document ID and a Firestore transaction to
+avoid duplicate records when devices submit the same phone concurrently.
 
 ## Data migration
 
