@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admin/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admin/$(request.auth.uid)).data.active == true;
+    }
+
+    function validPrize(prize) {
+      return prize in [
+        'បញ្ចុះតម្លៃ 5%',
+        'បញ្ចុះតម្លៃ 10%',
+        'ដងវ៉ែនតា 8 teen',
+        'ក្រណាត់វ៉ែនតា',
+        'ប្រអប់វ៉ែនតា',
+        'ទឹកបាញ់វ៉ែនតា'
+      ];
+    }
+
+    match /spins/{spinId} {
+      allow get: if signedIn();
+      allow list: if isAdmin();
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['phone', 'prize', 'uid', 'createdAt'])
+        && request.resource.data.keys().hasAll(['phone', 'prize', 'uid', 'createdAt'])
+        && request.resource.data.phone is string
+        && request.resource.data.phone.matches('^0[0-9]{8,9}$')
+        && validPrize(request.resource.data.prize)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && (
+          request.auth.token.firebase.sign_in_provider == 'anonymous'
+          || isAdmin()
+        );
+
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /admin/{userId} {
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow list, create, update, delete: if false;
+    }
+  }
+}

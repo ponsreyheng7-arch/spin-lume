@@ -1,0 +1,35 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "hosting": {
+    "public": ".",
+    "rewrites": [
+      {
+        "source": "/",
+        "destination": "/water_festival_lucky_spin_app.html"
+      }
+    ],
+    "ignore": [
+      ".firebaserc",
+      ".firebase/**",
+      ".git/**",
+      "firebase.json",
+      "firestore.rules",
+      "node_modules/**",
+      "FIREBASE_SETUP.md",
+      "firebase-debug.log"
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(html|js)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
+    ]
+  }
+}
